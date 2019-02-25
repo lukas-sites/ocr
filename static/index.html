@@ -101,7 +101,7 @@
 
     <h1>Tesseract OCR</h1>
     <transition name="slide-fade">
-      <textarea id="output" v-show="text!==''">{{ text }}</textarea>
+      <textarea id="output" v-show="text!==''" v-model="text"></textarea>
     </transition>
     <label for="picture-upload" class="custom-picture-upload">
       <i class="fas fa-cloud-upload-alt"></i> Scan
