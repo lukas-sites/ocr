@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Tesseract OCR</title>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://yarnpkg.com/en/package/normalize.css" />
+  <style>
+    html,
+    body,
+    #app {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    * {
+      font-family: sans-serif;
+    }
+
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 9998;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    #loading {
+      position: absolute;
+      top: calc(50% - 50);
+      left: calc(50% - 50);
+      z-index: 9999;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    #picture-upload {
+      display: none;
+    }
+
+    .custom-picture-upload {
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      display: inline-block;
+      padding: 6px 12px;
+      width: 100px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .custom-picture-upload:hover {
+      box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    #output {
+      width: 50%;
+      height: 40%;
+      font-size: large;
+    }
+
+    .slide-fade-enter-active {
+      transition: all .3s ease;
+    }
+
+    .slide-fade-leave-active {
+      transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+    }
+
+    .slide-fade-enter,
+    .slide-fade-leave-to
+
+    /* .slide-fade-leave-active below version 2.1.8 */
+      {
+      transform: translateX(10px);
+      opacity: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div id="overlay" v-show="loading"></div>
+    <svg id="loading" v-show="loading" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50">
+      <path fill="#C779D0"
+        d="M25,5A20.14,20.14,0,0,1,45,22.88a2.51,2.51,0,0,0,2.49,2.26h0A2.52,2.52,0,0,0,50,22.33a25.14,25.14,0,0,0-50,0,2.52,2.52,0,0,0,2.5,2.81h0A2.51,2.51,0,0,0,5,22.88,20.14,20.14,0,0,1,25,5Z">
+        <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s"
+          repeatCount="indefinite" />
+      </path>
+    </svg>
+
+    <h1>Tesseract OCR</h1>
+    <transition name="slide-fade">
+      <textarea id="output" v-show="text!==''">{{ text }}</textarea>
+    </transition>
+    <label for="picture-upload" class="custom-picture-upload">
+      <i class="fas fa-cloud-upload-alt"></i> Scan
+    </label>
+    <input id="picture-upload" type="file" accept="image/*" @change="scan($event.target.files)" />
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <script>
+    new Vue({
+      el: "#app",
+      data: {
+        loading: false,
+        error: "",
+        text: ""
+      },
+      methods: {
+        async scan(files) {
+          this.loading = true;
+          console.log("scanning");
+
+          try {
+            const response = await fetch('/api/scan', {
+              method: 'POST',
+              body: files[0],
+            });
+            this.text = await response.text();
+            console.log(await response.text());
+          } catch (e) {
+            this.error = e;
+          } finally {
+            this.loading = false;
+          }
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
